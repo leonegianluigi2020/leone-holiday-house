@@ -1,9 +1,12 @@
-<!DOCTYPE html>
+x<!DOCTYPE html>
 <html lang="it">
+
 
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link href="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.11/index.global.min.css" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.11/index.global.min.js"></script>
     <title>Leone Holiday House | Luxury Private Villa in Puglia</title>
     <meta name="description"
         content="Elegante villa privata con piscina a Latiano, Puglia. Relax esclusivo nel cuore dell'Alto Salento.">
@@ -265,7 +268,10 @@
                     <div class="divider-gold"></div>
                 </div>
 
-                <div class="calendar-container">
+                <div class="<div class="calendar-wrapper">
+    <div id="calendar"></div>
+</div>
+calendar-container">
                     <div class="calendar-wrapper">
                         <!-- Visual Placeholder for Calendar - linking to functional backend is recommended for production -->
                         <iframe
@@ -384,7 +390,17 @@
 
     <!-- Footer -->
     <footer>
-        <div class="container footer-content">
+    <section id="availability" class="section bg-sand">
+  <div class="container">
+    <div class="section-header">
+      <h2>Disponibilità</h2>
+      <div class="divider-gold"></div>
+    </div>
+
+    <div id="calendar"></div>
+  </div>
+</section>
+    <div class="container footer-content">
             <p>&copy; 2026 Leone Holiday House. All rights reserved.</p>
             <p class="cin">CIN: IT074009C200108008</p>
         </div>
