@@ -658,3 +658,14 @@ footer {
     color: #D4AF37;
 }
 
+.availability-cta {
+    text-align: center;
+    margin-top: 30px;
+}
+
+.big-cta {
+    font-size: 16px;
+    padding: 14px 36px;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+}
