@@ -641,3 +641,20 @@ footer {
   }
 }
 
+/* AVAILABILITY TEXT ALIGNMENT FIX */
+
+.availability-note {
+    max-width: 700px;
+    margin: 30px auto 0 auto;
+    text-align: center;
+}
+
+.availability-note p {
+    margin: 10px 0;
+}
+
+.availability-note .highlight-text {
+    font-weight: 600;
+    color: #D4AF37;
+}
+
