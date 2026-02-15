@@ -559,3 +559,85 @@ footer {
 .whatsapp-float:hover {
     transform: scale(1.1);
 }
+/* ============================= */
+/* FULLCALENDAR LUXURY REFINEMENT */
+/* ============================= */
+
+.fc {
+  font-family: 'Lato', sans-serif;
+}
+
+.fc .fc-toolbar {
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  align-items: center;
+  margin-bottom: 30px;
+}
+
+.fc .fc-toolbar-title {
+  grid-column: 2;
+  text-align: center;
+  font-family: 'Playfair Display', serif;
+  font-size: 28px;
+  letter-spacing: 1px;
+}
+
+.fc .fc-button-group {
+  grid-column: 3;
+  justify-self: end;
+}
+
+.fc .fc-button {
+  background: none;
+  border: none;
+  color: #333;
+  font-size: 18px;
+  box-shadow: none;
+}
+
+.fc .fc-button:hover {
+  color: #D4AF37;
+  background: none;
+}
+
+.fc .fc-col-header-cell-cushion {
+  font-family: 'Lato', sans-serif;
+  font-weight: 700;
+  font-size: 13px;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+}
+
+.fc-theme-standard td,
+.fc-theme-standard th {
+  border: 1px solid #eee;
+}
+
+.fc .fc-daygrid-day-number {
+  font-size: 14px;
+  padding: 6px;
+}
+
+.fc .fc-daygrid-day.fc-day-today {
+  background-color: rgba(212, 175, 55, 0.08);
+}
+
+/* Gold booked background */
+.fc .fc-bg-event {
+  background-color: #D4AF37 !important;
+  opacity: 0.85;
+}
+
+/* Mobile refinement */
+@media (max-width: 768px) {
+  .fc .fc-toolbar {
+    grid-template-columns: 1fr;
+    gap: 10px;
+    text-align: center;
+  }
+
+  .fc .fc-button-group {
+    justify-self: center;
+  }
+}
+
