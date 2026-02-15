@@ -391,39 +391,48 @@
 
     <!-- Scripts -->
     <script src="script.js"></script>
+    <!-- FullCalendar CDN -->
+    <script src='https://cdn.jsdelivr.net/npm/fullcalendar@6.1.10/index.global.min.js'></script>
     <script>
-        document.addEventListener('DOMContentLoaded', async function () {
-
+        document.addEventListener('DOMContentLoaded', function () {
             const calendarEl = document.getElementById('calendar');
-            if (!calendarEl) {
-                console.log("Calendar element NOT found");
-                return;
-            }
+            if (!calendarEl) return;
 
-            try {
-                const response = await fetch('https://availability-worker.leonegianluigi2020.workers.dev');
-                const busyDates = await response.json();
+            // Prevent duplicate initialization
+            if (calendarEl.innerHTML.trim() !== "") return;
 
-                console.log("Dati ricevuti:", busyDates);
+            fetch('https://availability-worker.leonegianluigi2020.workers.dev')
+                .then(response => response.json())
+                .then(data => {
+                    console.log("Events fetched:", data.length); // Debug
 
-                const calendar = new FullCalendar.Calendar(calendarEl, {
-                    initialView: 'dayGridMonth',
-                    locale: 'it',
-                    height: "auto",
-                    events: busyDates.map(event => ({
+                    const cleanEvents = data.map(event => ({
                         start: event.start,
                         end: event.end,
-                        display: 'background',
-                        backgroundColor: '#D4AF37'
-                    }))
-                });
+                        display: 'background', // KEEP 'background' for production
+                        // display: 'block',   // UNCOMMENT for DEBUG
+                        // title: 'Occupato',  // UNCOMMENT for DEBUG
+                        allDay: true,
+                        backgroundColor: '#D4AF37',
+                        borderColor: '#D4AF37'
+                    }));
 
-                calendar.render();
+                    const calendar = new FullCalendar.Calendar(calendarEl, {
+                        initialView: 'dayGridMonth',
+                        locale: 'it',
+                        height: 'auto',
+                        // initialDate: '2026-07-01', // UNCOMMENT for DEBUG
+                        events: cleanEvents,
+                        headerToolbar: {
+                            left: 'prev,next',
+                            center: 'title',
+                            right: ''
+                        }
+                    });
 
-            } catch (error) {
-                console.error("Errore caricamento calendario:", error);
-            }
-
+                    calendar.render();
+                })
+                .catch(error => console.error("Error fetching calendar:", error));
         });
     </script>
 </body>
