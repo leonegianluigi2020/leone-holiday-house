@@ -460,6 +460,42 @@ function closePopup() {
   document.getElementById("whatsapp-popup").classList.remove("show");
 }
 </script>
-</body>
+<!-- Booking Popup Modal -->
+<div id="booking-modal" class="booking-modal">
+  <div class="booking-content">
+    <span class="booking-close" onclick="closeBooking()">&times;</span>
+    <h2>Verifica Disponibilità</h2>
+    
+    <input type="date" id="checkin">
+    <input type="date" id="checkout">
+    <input type="number" id="guests" placeholder="Numero ospiti" min="1">
+
+    <button onclick="sendWhatsApp()">Richiedi su WhatsApp</button>
+  </div>
+</div>
+
+<script>
+setTimeout(() => {
+  document.getElementById("booking-modal").classList.add("show");
+}, 1500);
+
+function closeBooking() {
+  document.getElementById("booking-modal").classList.remove("show");
+}
+
+function sendWhatsApp() {
+  const checkin = document.getElementById("checkin").value;
+  const checkout = document.getElementById("checkout").value;
+  const guests = document.getElementById("guests").value;
+
+  const message = `Salve, vorrei verificare disponibilità:
+Check-in: ${checkin}
+Check-out: ${checkout}
+Ospiti: ${guests}`;
+
+  const url = `https://wa.me/393491431077?text=${encodeURIComponent(message)}`;
+  window.open(url, '_blank');
+}
+</script></body>
 
 </html>
