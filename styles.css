@@ -789,3 +789,63 @@ footer {
     cursor: pointer;
     font-size: 18px;
 }
+/* ===== WhatsApp Popup ===== */
+
+.whatsapp-popup {
+  position: fixed;
+  bottom: 30px;
+  right: 30px;
+  width: 320px;
+  background: white;
+  border-radius: 16px;
+  box-shadow: 0 15px 40px rgba(0,0,0,0.15);
+  padding: 25px;
+  transform: translateY(40px);
+  opacity: 0;
+  visibility: hidden;
+  transition: all 0.4s ease;
+  z-index: 9999;
+  font-family: 'Lato', sans-serif;
+}
+
+.whatsapp-popup.show {
+  transform: translateY(0);
+  opacity: 1;
+  visibility: visible;
+}
+
+.popup-content h3 {
+  font-family: 'Playfair Display', serif;
+  margin-bottom: 10px;
+}
+
+.popup-content p {
+  font-size: 14px;
+  margin-bottom: 20px;
+  line-height: 1.5;
+}
+
+.popup-btn {
+  display: block;
+  text-align: center;
+  background: #D4AF37;
+  color: white;
+  padding: 12px;
+  border-radius: 30px;
+  text-decoration: none;
+  font-weight: 600;
+  transition: 0.3s;
+}
+
+.popup-btn:hover {
+  background: #b9962f;
+}
+
+.popup-close {
+  position: absolute;
+  top: 10px;
+  right: 15px;
+  cursor: pointer;
+  font-size: 20px;
+  font-weight: bold;
+}
