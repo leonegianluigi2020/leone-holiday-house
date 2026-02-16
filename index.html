@@ -403,11 +403,13 @@
         </div>
     </footer>
 
-    <!-- Scripts -->
-    <script src="script.js"></script>
-    <!-- FullCalendar CDN -->
-    <script src='https://cdn.jsdelivr.net/npm/fullcalendar@6.1.10/index.global.min.js'></script>
-    <script>
+<!-- Scripts -->
+<script src="script.js" defer></script>
+
+<!-- FullCalendar CDN -->
+<script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.10/index.global.min.js" defer></script>
+
+<script>
         document.addEventListener('DOMContentLoaded', function () {
             const calendarEl = document.getElementById('calendar');
             if (!calendarEl) return;
