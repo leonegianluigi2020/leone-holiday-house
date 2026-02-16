@@ -870,6 +870,7 @@ footer {
 }
 
 .booking-content {
+  position: relative; /* IMPORTANTISSIMO */
   background: white;
   padding: 40px;
   border-radius: 16px;
@@ -878,7 +879,6 @@ footer {
   box-shadow: 0 20px 50px rgba(0,0,0,0.2);
   font-family: 'Lato', sans-serif;
 }
-
 .booking-content h2 {
   font-family: 'Playfair Display', serif;
   margin-bottom: 25px;
@@ -910,8 +910,16 @@ footer {
 
 .booking-close {
   position: absolute;
-  top: 20px;
-  right: 25px;
-  font-size: 22px;
+  top: 15px;
+  right: 18px;
+  font-size: 26px;
+  font-weight: bold;
+  color: #333;
   cursor: pointer;
+  transition: 0.3s;
+}
+
+.booking-close:hover {
+  color: #D4AF37;
+  transform: scale(1.2);
 }

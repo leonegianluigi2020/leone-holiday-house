@@ -484,17 +484,21 @@ function closeBooking() {
 }
 
 function sendWhatsApp() {
-  const checkin = document.getElementById("checkin").value;
-  const checkout = document.getElementById("checkout").value;
-  const guests = document.getElementById("guests").value;
+  const checkin = document.getElementById("checkin").value || "Non specificato";
+  const checkout = document.getElementById("checkout").value || "Non specificato";
+  const guests = document.getElementById("guests").value || "Non specificato";
 
-  const message = `Salve, vorrei verificare disponibilità:
-Check-in: ${checkin}
-Check-out: ${checkout}
-Ospiti: ${guests}`;
+  const message =
+`Salve, vorrei verificare disponibilità per Leone Holiday House:
 
-  const url = `https://wa.me/393491431077?text=${encodeURIComponent(message)}`;
-  window.open(url, '_blank');
+📅 Check-in: ${checkin}
+📅 Check-out: ${checkout}
+👥 Ospiti: ${guests}`;
+
+  const encodedMessage = encodeURIComponent(message);
+  const url = `https://wa.me/393491431077?text=${encodedMessage}`;
+
+  window.open(url, "_blank");
 }
 </script></body>
 
