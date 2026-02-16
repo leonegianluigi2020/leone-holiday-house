@@ -437,7 +437,29 @@
                 })
                 .catch(error => console.error("Error fetching calendar:", error));
         });
-    </script>
+    </script><!-- WhatsApp Popup -->
+<div id="whatsapp-popup" class="whatsapp-popup">
+  <div class="popup-content">
+    <span class="popup-close" onclick="closePopup()">&times;</span>
+    <h3>Hai bisogno di informazioni?</h3>
+    <p>Scrivici direttamente su WhatsApp per disponibilità e preventivi.</p>
+    <a href="https://wa.me/393491431077?text=Salve,%20vorrei%20informazioni%20su%20Leone%20Holiday%20House"
+       target="_blank"
+       class="popup-btn">
+       Scrivi su WhatsApp
+    </a>
+  </div>
+</div>
+
+<script>
+setTimeout(() => {
+  document.getElementById("whatsapp-popup").classList.add("show");
+}, 4000);
+
+function closePopup() {
+  document.getElementById("whatsapp-popup").classList.remove("show");
+}
+</script>
 </body>
 
 </html>
