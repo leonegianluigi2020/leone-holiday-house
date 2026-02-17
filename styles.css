@@ -122,14 +122,15 @@ ul {
 
 /* Hero Section */
 .hero {
-    height: 100vh;
-    width: 100%;
     position: relative;
+    width: 100%;
+    min-height: 100vh;
     display: flex;
     align-items: center;
     justify-content: center;
     text-align: center;
     color: white;
+    overflow: hidden;
 }
 .hero-img {
   position: absolute;
