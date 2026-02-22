@@ -484,15 +484,27 @@ function closePopup() {
   <div class="booking-content">
     <span class="booking-close" onclick="closeBooking()">&times;</span>
     <h2>Verifica Disponibilità</h2>
-    
-    <input type="date" id="checkin">
-    <input type="date" id="checkout">
-    <input type="number" id="guests" placeholder="Numero ospiti" min="1">
 
-    <button onclick="sendWhatsApp()">Richiedi su WhatsApp</button>
+    <div class="booking-field">
+      <label for="checkin">Check-in</label>
+      <input type="date" id="checkin" required>
+    </div>
+
+    <div class="booking-field">
+      <label for="checkout">Check-out</label>
+      <input type="date" id="checkout" required>
+    </div>
+
+    <div class="booking-field">
+      <label for="guests">Numero ospiti</label>
+      <input type="number" id="guests" min="1" max="10" required>
+    </div>
+
+    <button onclick="sendWhatsApp()" class="booking-btn">
+      Richiedi su WhatsApp
+    </button>
   </div>
 </div>
-
 <script>
 setTimeout(() => {
   document.getElementById("booking-modal").classList.add("show");

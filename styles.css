@@ -921,3 +921,33 @@ footer {
   color: #D4AF37;
   transform: scale(1.2);
 }
+/* Booking Popup Fields */
+
+.booking-field {
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 15px;
+}
+
+.booking-field label {
+  font-size: 14px;
+  margin-bottom: 5px;
+  font-weight: 500;
+}
+
+.booking-field input {
+  padding: 10px;
+  border-radius: 6px;
+  border: 1px solid #ddd;
+  font-size: 16px;
+}
+
+.booking-btn {
+  width: 100%;
+  padding: 12px;
+  margin-top: 10px;
+  border: none;
+  border-radius: 6px;
+  font-size: 16px;
+  cursor: pointer;
+}
