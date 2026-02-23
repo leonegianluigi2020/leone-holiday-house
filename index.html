@@ -445,66 +445,67 @@ document.addEventListener('DOMContentLoaded', function () {
 
                 dateClick: function(info) {
 
-                    const clickedDate = new Date(info.dateStr);
+    const clicked = info.dateStr;
 
-                    // BLOCCO SE DATA OCCUPATA
-                    const isBlocked = occupiedEvents.some(event =>
-                        new Date(event.start) <= clickedDate &&
-                        new Date(event.end) > clickedDate
-                    );
+    // controllo se la data cliccata è occupata
+    const isBlocked = occupiedEvents.some(event =>
+        clicked >= event.start && clicked < event.end
+    );
 
-                    if (isBlocked) {
-                        showUnavailableMessage();
-                        return;
-                    }
+    if (isBlocked) {
+        showUnavailableMessage();
+        return;
+    }
 
-                    // PRIMO CLICK → CHECK-IN
-                    if (!checkIn) {
-                        checkIn = clickedDate;
-                        return;
-                    }
+    // PRIMO CLICK → set check-in
+    if (!checkIn) {
+        checkIn = clicked;
+        return;
+    }
 
-                    // SECONDO CLICK → CHECK-OUT
-                    if (!checkOut) {
+    // SECONDO CLICK → set check-out
+    if (!checkOut) {
 
-                        if (clickedDate <= checkIn) {
-                            alert("Il check-out deve essere dopo il check-in.");
-                            return;
-                        }
+        if (clicked <= checkIn) {
+            // se clicca una data precedente → reset e riparte
+            checkIn = clicked;
+            return;
+        }
 
-                        const overlapping = occupiedEvents.some(event =>
-                            new Date(event.start) < clickedDate &&
-                            new Date(event.end) > checkIn
-                        );
+        // controllo intervallo occupato
+        const overlapping = occupiedEvents.some(event =>
+            event.start < clicked && event.end > checkIn
+        );
 
-                        if (overlapping) {
-                            showUnavailableMessage();
-                            return;
-                        }
+        if (overlapping) {
+            showUnavailableMessage();
+            checkIn = null;
+            return;
+        }
 
-                        checkOut = clickedDate;
+        checkOut = clicked;
 
-                        if (selectedEvent) selectedEvent.remove();
+        if (selectedEvent) selectedEvent.remove();
 
-                        selectedEvent = calendar.addEvent({
-                            start: checkIn,
-                            end: checkOut,
-                            display: 'background',
-                            backgroundColor: '#1f3f3a',
-                            borderColor: '#1f3f3a',
-                            allDay: true
-                        });
+        selectedEvent = calendar.addEvent({
+            start: checkIn,
+            end: checkOut,
+            display: 'background',
+            backgroundColor: '#1e4d47',
+            borderColor: '#1e4d47',
+            allDay: true
+        });
 
-                        showQuotePanel();
-                        return;
-                    }
+        showQuotePanel();
+        return;
+    }
 
-                    // TERZO CLICK → RESET
-                    checkIn = clickedDate;
-                    checkOut = null;
-                    if (selectedEvent) selectedEvent.remove();
-                },
+    // TERZO CLICK → reset completo
+    checkIn = clicked;
+    checkOut = null;
 
+    if (selectedEvent) selectedEvent.remove();
+}
                 events: occupiedEvents
             });
 

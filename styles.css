@@ -951,3 +951,12 @@ footer {
   font-size: 16px;
   cursor: pointer;
 }
+/* Selezione date utente */
+.fc-daygrid-day.selected-range {
+    background-color: #1f3f3a !important;
+    color: white !important;
+}
+
+.fc-daygrid-day.selected-range:hover {
+    background-color: #24524c !important;
+}
