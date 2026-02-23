@@ -421,6 +421,7 @@ let checkOut = null;
 let selectedEvent = null;
 
 document.addEventListener('DOMContentLoaded', function () {
+
     const calendarEl = document.getElementById('calendar');
     if (!calendarEl) return;
 
@@ -440,81 +441,95 @@ document.addEventListener('DOMContentLoaded', function () {
             const calendar = new FullCalendar.Calendar(calendarEl, {
                 initialView: 'dayGridMonth',
                 locale: 'it',
-                selectable: true,
-                selectMirror: true,
+                selectable: false,
 
                 dateClick: function(info) {
 
-    const clicked = info.dateStr;
+                    const clicked = info.dateStr;
 
-    // controllo se la data cliccata è occupata
-    const isBlocked = occupiedEvents.some(event =>
-        clicked >= event.start && clicked < event.end
-    );
+                    // 🔒 controllo data occupata
+                    const isBlocked = occupiedEvents.some(event =>
+                        clicked >= event.start && clicked < event.end
+                    );
 
-    if (isBlocked) {
-        showUnavailableMessage();
-        return;
-    }
+                    if (isBlocked) {
+                        showUnavailableMessage();
+                        return;
+                    }
 
-    // PRIMO CLICK → set check-in
-    if (!checkIn) {
-        checkIn = clicked;
-        return;
-    }
+                    // 1️⃣ Primo click → check-in
+                    if (!checkIn) {
+                        resetSelection();
+                        checkIn = clicked;
+                        return;
+                    }
 
-    // SECONDO CLICK → set check-out
-    if (!checkOut) {
+                    // 2️⃣ Secondo click → check-out
+                    if (!checkOut) {
 
-        if (clicked <= checkIn) {
-            // se clicca una data precedente → reset e riparte
-            checkIn = clicked;
-            return;
-        }
+                        if (clicked <= checkIn) {
+                            checkIn = clicked;
+                            return;
+                        }
 
-        // controllo intervallo occupato
-        const overlapping = occupiedEvents.some(event =>
-            event.start < clicked && event.end > checkIn
-        );
+                        // controllo intervallo con date occupate
+                        const overlapping = occupiedEvents.some(event =>
+                            event.start < clicked && event.end > checkIn
+                        );
 
-        if (overlapping) {
-            showUnavailableMessage();
-            checkIn = null;
-            return;
-        }
+                        if (overlapping) {
+                            showUnavailableMessage();
+                            resetSelection();
+                            return;
+                        }
 
-        checkOut = clicked;
+                        checkOut = clicked;
 
-        if (selectedEvent) selectedEvent.remove();
+                        selectedEvent = calendar.addEvent({
+                            start: checkIn,
+                            end: checkOut,
+                            display: 'block',
+                            backgroundColor: '#1e4d47',
+                            borderColor: '#1e4d47',
+                            textColor: '#ffffff',
+                            allDay: true
+                        });
 
-        selectedEvent = calendar.addEvent({
-            start: checkIn,
-            end: checkOut,
-            display: 'background',
-            backgroundColor: '#1e4d47',
-            borderColor: '#1e4d47',
-            allDay: true
-        });
+                        showQuotePanel();
+                        return;
+                    }
 
-        showQuotePanel();
-        return;
-    }
+                    // 3️⃣ Terzo click → reset e riparte
+                    resetSelection();
+                    checkIn = clicked;
+                },
 
-    // TERZO CLICK → reset completo
-    checkIn = clicked;
-    checkOut = null;
-
-    if (selectedEvent) selectedEvent.remove();
-}
                 events: occupiedEvents
             });
 
             calendar.render();
+
+            // 🧹 funzione reset pulita
+            function resetSelection() {
+                checkIn = null;
+                checkOut = null;
+
+                if (selectedEvent) {
+                    selectedEvent.remove();
+                    selectedEvent = null;
+                }
+
+                const existingPanel = document.getElementById("quote-panel");
+                if (existingPanel) existingPanel.remove();
+
+                const existingBox = document.getElementById("unavailable-box");
+                if (existingBox) existingBox.remove();
+            }
+
         })
         .catch(error => console.error("Errore calendario:", error));
 });
-
-
+</script>
 // ================= QUOTE PANEL =================
 
 function showQuotePanel() {
