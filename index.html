@@ -443,39 +443,66 @@ document.addEventListener('DOMContentLoaded', function () {
                 selectable: true,
                 selectMirror: true,
 
-                select: function(info) {
+                dateClick: function(info) {
 
-                    // blocco se include date occupate
-                    const overlapping = occupiedEvents.some(event =>
-                        new Date(event.start) < info.end &&
-                        new Date(event.end) > info.start
+                    const clickedDate = new Date(info.dateStr);
+
+                    // BLOCCO SE DATA OCCUPATA
+                    const isBlocked = occupiedEvents.some(event =>
+                        new Date(event.start) <= clickedDate &&
+                        new Date(event.end) > clickedDate
                     );
 
-                    if (overlapping) {
-                        alert("Le date selezionate non sono disponibili.\n\nSe desideri, possiamo aiutarti a trovare una soluzione alternativa nelle vicinanze.");
-                        calendar.unselect();
+                    if (isBlocked) {
+                        showUnavailableMessage();
                         return;
                     }
 
-                    checkIn = info.start;
-                    checkOut = info.end;
-
-                    // rimuove precedente selezione
-                    if (selectedEvent) {
-                        selectedEvent.remove();
+                    // PRIMO CLICK → CHECK-IN
+                    if (!checkIn) {
+                        checkIn = clickedDate;
+                        return;
                     }
 
-                    // aggiunge evento colorato per intervallo scelto
-                    selectedEvent = calendar.addEvent({
-                        start: checkIn,
-                        end: checkOut,
-                        display: 'background',
-                        backgroundColor: '#2E8B57',
-                        borderColor: '#2E8B57',
-                        allDay: true
-                    });
+                    // SECONDO CLICK → CHECK-OUT
+                    if (!checkOut) {
 
-                    showQuotePanel();
+                        if (clickedDate <= checkIn) {
+                            alert("Il check-out deve essere dopo il check-in.");
+                            return;
+                        }
+
+                        const overlapping = occupiedEvents.some(event =>
+                            new Date(event.start) < clickedDate &&
+                            new Date(event.end) > checkIn
+                        );
+
+                        if (overlapping) {
+                            showUnavailableMessage();
+                            return;
+                        }
+
+                        checkOut = clickedDate;
+
+                        if (selectedEvent) selectedEvent.remove();
+
+                        selectedEvent = calendar.addEvent({
+                            start: checkIn,
+                            end: checkOut,
+                            display: 'background',
+                            backgroundColor: '#1f3f3a',
+                            borderColor: '#1f3f3a',
+                            allDay: true
+                        });
+
+                        showQuotePanel();
+                        return;
+                    }
+
+                    // TERZO CLICK → RESET
+                    checkIn = clickedDate;
+                    checkOut = null;
+                    if (selectedEvent) selectedEvent.remove();
                 },
 
                 events: occupiedEvents
@@ -486,7 +513,11 @@ document.addEventListener('DOMContentLoaded', function () {
         .catch(error => console.error("Errore calendario:", error));
 });
 
+
+// ================= QUOTE PANEL =================
+
 function showQuotePanel() {
+
     const existing = document.getElementById("quote-panel");
     if (existing) existing.remove();
 
@@ -533,7 +564,11 @@ function showQuotePanel() {
     });
 }
 
+
+// ================= PRICE CALC =================
+
 function calculatePrice(nights) {
+
     const guests = parseInt(document.getElementById("dynamic-guests").value);
     const month = checkIn.getMonth() + 1;
 
@@ -561,7 +596,11 @@ function calculatePrice(nights) {
     `;
 }
 
+
+// ================= WHATSAPP =================
+
 function sendDynamicWhatsApp(nights) {
+
     const guests = document.getElementById("dynamic-guests").value;
     const total = document.getElementById("price-result").innerText;
 
@@ -577,6 +616,36 @@ ${total}`;
 
     const url = "https://wa.me/393491431077?text=" + encodeURIComponent(message);
     window.open(url, "_blank");
+}
+
+
+// ================= UNAVAILABLE MESSAGE =================
+
+function showUnavailableMessage() {
+
+    let existing = document.getElementById("unavailable-box");
+    if (existing) existing.remove();
+
+    const box = document.createElement("div");
+    box.id = "unavailable-box";
+    box.style.marginTop = "25px";
+    box.style.padding = "25px";
+    box.style.background = "#f8f5f0";
+    box.style.borderLeft = "5px solid #D4AF37";
+    box.style.fontSize = "18px";
+    box.style.lineHeight = "1.6";
+    box.style.fontWeight = "500";
+    box.style.color = "#333";
+    box.style.borderRadius = "8px";
+
+    box.innerHTML = `
+        <strong style="font-size:20px;">
+        Le date non sono disponibili?
+        </strong><br><br>
+        Il nostro team può suggerire altre ville esclusive con piscina nella zona.
+    `;
+
+    document.querySelector(".calendar-container").appendChild(box);
 }
 </script>
 <!-- WhatsApp Popup -->
