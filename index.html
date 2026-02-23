@@ -416,47 +416,170 @@
 <script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.11/index.global.min.js" defer></script>
 
 <script>
-        document.addEventListener('DOMContentLoaded', function () {
-            const calendarEl = document.getElementById('calendar');
-            if (!calendarEl) return;
+let checkIn = null;
+let checkOut = null;
+let selectedEvent = null;
 
-            // Prevent duplicate initialization
-            if (calendarEl.innerHTML.trim() !== "") return;
+document.addEventListener('DOMContentLoaded', function () {
+    const calendarEl = document.getElementById('calendar');
+    if (!calendarEl) return;
 
-            fetch('https://availability-worker.leonegianluigi2020.workers.dev')
-                .then(response => response.json())
-                .then(data => {
-                    console.log("Events fetched:", data.length); // Debug
+    fetch('https://availability-worker.leonegianluigi2020.workers.dev')
+        .then(response => response.json())
+        .then(data => {
 
-                    const cleanEvents = data.map(event => ({
-                        start: event.start,
-                        end: event.end,
-                        display: 'background', // KEEP 'background' for production
-                        // display: 'block',   // UNCOMMENT for DEBUG
-                        // title: 'Occupato',  // UNCOMMENT for DEBUG
-                        allDay: true,
-                        backgroundColor: '#D4AF37',
-                        borderColor: '#D4AF37'
-                    }));
+            const occupiedEvents = data.map(event => ({
+                start: event.start,
+                end: event.end,
+                display: 'background',
+                allDay: true,
+                backgroundColor: '#D4AF37',
+                borderColor: '#D4AF37'
+            }));
 
-                    const calendar = new FullCalendar.Calendar(calendarEl, {
-                        initialView: 'dayGridMonth',
-                        locale: 'it',
-                        height: 'auto',
-                        // initialDate: '2026-07-01', // UNCOMMENT for DEBUG
-                        events: cleanEvents,
-                        headerToolbar: {
-                            left: 'prev,next',
-                            center: 'title',
-                            right: ''
-                        }
+            const calendar = new FullCalendar.Calendar(calendarEl, {
+                initialView: 'dayGridMonth',
+                locale: 'it',
+                selectable: true,
+                selectMirror: true,
+
+                select: function(info) {
+
+                    // blocco se include date occupate
+                    const overlapping = occupiedEvents.some(event =>
+                        new Date(event.start) < info.end &&
+                        new Date(event.end) > info.start
+                    );
+
+                    if (overlapping) {
+                        alert("Le date selezionate non sono disponibili.\n\nSe desideri, possiamo aiutarti a trovare una soluzione alternativa nelle vicinanze.");
+                        calendar.unselect();
+                        return;
+                    }
+
+                    checkIn = info.start;
+                    checkOut = info.end;
+
+                    // rimuove precedente selezione
+                    if (selectedEvent) {
+                        selectedEvent.remove();
+                    }
+
+                    // aggiunge evento colorato per intervallo scelto
+                    selectedEvent = calendar.addEvent({
+                        start: checkIn,
+                        end: checkOut,
+                        display: 'background',
+                        backgroundColor: '#2E8B57',
+                        borderColor: '#2E8B57',
+                        allDay: true
                     });
 
-                    calendar.render();
-                })
-                .catch(error => console.error("Error fetching calendar:", error));
-        });
-    </script><!-- WhatsApp Popup -->
+                    showQuotePanel();
+                },
+
+                events: occupiedEvents
+            });
+
+            calendar.render();
+        })
+        .catch(error => console.error("Errore calendario:", error));
+});
+
+function showQuotePanel() {
+    const existing = document.getElementById("quote-panel");
+    if (existing) existing.remove();
+
+    const nights = Math.ceil((checkOut - checkIn) / (1000 * 60 * 60 * 24));
+
+    const panel = document.createElement("div");
+    panel.id = "quote-panel";
+    panel.style.marginTop = "30px";
+    panel.style.padding = "25px";
+    panel.style.background = "#fff";
+    panel.style.borderRadius = "12px";
+    panel.style.boxShadow = "0 10px 30px rgba(0,0,0,0.1)";
+
+    panel.innerHTML = `
+        <h3>Preventivo</h3>
+        <p>Check-in: ${checkIn.toLocaleDateString()}</p>
+        <p>Check-out: ${checkOut.toLocaleDateString()}</p>
+        <p>Notti: ${nights}</p>
+
+        <label>Numero ospiti</label>
+        <input type="number" id="dynamic-guests" min="1" max="6" value="4" style="width:100%;padding:10px;margin:10px 0;">
+
+        <div id="price-result" style="margin-top:15px;font-weight:bold;"></div>
+
+        <p style="font-size:14px;margin-top:15px;">
+        Il preventivo include spese di pulizia, tassa di soggiorno, biancheria e utenze.
+        </p>
+
+        <button id="whatsapp-book" style="margin-top:15px;padding:12px 20px;background:#25D366;color:#fff;border:none;border-radius:6px;cursor:pointer;">
+        Prenota su WhatsApp
+        </button>
+    `;
+
+    document.querySelector(".calendar-container").appendChild(panel);
+
+    calculatePrice(nights);
+
+    document.getElementById("dynamic-guests").addEventListener("input", () => {
+        calculatePrice(nights);
+    });
+
+    document.getElementById("whatsapp-book").addEventListener("click", () => {
+        sendDynamicWhatsApp(nights);
+    });
+}
+
+function calculatePrice(nights) {
+    const guests = parseInt(document.getElementById("dynamic-guests").value);
+    const month = checkIn.getMonth() + 1;
+
+    let basePrice = 0;
+    let extra = 0;
+
+    if ([11,12,1,2,3].includes(month)) basePrice = 80;
+    else if ([4,10].includes(month)) basePrice = 100;
+    else if (month === 5) basePrice = 120;
+    else if ([6,9].includes(month)) basePrice = 180;
+    else if (month === 7) basePrice = 210;
+    else if (month === 8) basePrice = 230;
+
+    if (guests > 4) {
+        const extraRate = (month === 7 || month === 8) ? 30 : 25;
+        extra = (guests - 4) * extraRate;
+    }
+
+    const totalPerNight = basePrice + extra;
+    const totalStay = totalPerNight * nights;
+
+    document.getElementById("price-result").innerHTML = `
+        Prezzo per notte: €${totalPerNight}<br>
+        Totale soggiorno: €${totalStay}
+    `;
+}
+
+function sendDynamicWhatsApp(nights) {
+    const guests = document.getElementById("dynamic-guests").value;
+    const total = document.getElementById("price-result").innerText;
+
+    const message =
+`Salve, vorrei prenotare Leone Holiday House:
+
+Check-in: ${checkIn.toLocaleDateString()}
+Check-out: ${checkOut.toLocaleDateString()}
+Notti: ${nights}
+Ospiti: ${guests}
+
+${total}`;
+
+    const url = "https://wa.me/393491431077?text=" + encodeURIComponent(message);
+    window.open(url, "_blank");
+}
+</script>
+<!-- WhatsApp Popup -->
 <div id="whatsapp-popup" class="whatsapp-popup">
   <div class="popup-content">
     <span class="popup-close" onclick="closePopup()">&times;</span>
