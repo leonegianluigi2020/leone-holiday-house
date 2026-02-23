@@ -951,12 +951,31 @@ footer {
   font-size: 16px;
   cursor: pointer;
 }
-/* Selezione date utente */
-.fc-daygrid-day.selected-range {
-    background-color: #1f3f3a !important;
-    color: white !important;
+/* =========================
+   CALENDAR SELECTION STYLE
+   ========================= */
+
+.fc-highlight {
+  background-color: #1f3f3a !important;
+  opacity: 0.6 !important;
 }
 
-.fc-daygrid-day.selected-range:hover {
-    background-color: #24524c !important;
+.fc-daygrid-day.fc-day-selected {
+  background-color: rgba(31, 63, 58, 0.6) !important;
+}
+
+/* Box date non disponibili */
+#unavailable-box {
+  animation: fadeInUp 0.3s ease;
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
