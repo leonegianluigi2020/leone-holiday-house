@@ -1029,3 +1029,182 @@ footer {
   }
 }
 
+#ai-chatbot {
+  position: fixed;
+  bottom: 110px;   /* sopra WhatsApp */
+  right: 30px;     /* STESSO valore di WhatsApp */
+  z-index: 9999;
+}
+
+#chat-toggle {
+  background: linear-gradient(135deg, #1e4d47, #2e6d65);
+  color: white;
+  width: 65px;
+  height: 65px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  font-size: 26px;
+  box-shadow: 0 12px 25px rgba(0,0,0,0.25);
+  transition: all 0.3s ease;
+}
+
+/* Hover elegante */
+#chat-toggle:hover {
+  transform: translateY(-5px) scale(1.05);
+  box-shadow: 0 18px 35px rgba(0,0,0,0.35);
+}
+
+/* Pulsazione leggera */
+@keyframes chatPulse {
+  0% { box-shadow: 0 0 0 0 rgba(30,77,71,0.4); }
+  70% { box-shadow: 0 0 0 15px rgba(30,77,71,0); }
+  100% { box-shadow: 0 0 0 0 rgba(30,77,71,0); }
+}
+
+#chat-toggle {
+  animation: chatPulse 3s infinite;
+}
+
+#chat-box {
+  display: none;
+  flex-direction: column;
+  width: 300px;
+  height: 400px;
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+  overflow: hidden;
+  margin-bottom: 10px;
+}
+
+.chat-header {
+  background: #1e4d47;
+  color: white;
+  padding: 12px;
+  display: flex;
+  justify-content: space-between;
+}
+
+#chat-messages {
+  flex: 1;
+  padding: 10px;
+  overflow-y: auto;
+  font-size: 14px;
+}
+
+.bot-message {
+  background: #f1f1f1;
+  padding: 8px;
+  border-radius: 8px;
+  margin-bottom: 8px;
+}
+
+.user-message {
+  background: #D4AF37;
+  padding: 8px;
+  border-radius: 8px;
+  margin-bottom: 8px;
+  text-align: right;
+}
+
+.chat-input {
+  display: flex;
+  border-top: 1px solid #eee;
+}
+
+.chat-input input {
+  flex: 1;
+  border: none;
+  padding: 8px;
+}
+
+.chat-input button {
+  background: #1e4d47;
+  color: white;
+  border: none;
+  padding: 8px 12px;
+  cursor: pointer;
+}
+
+/* =========================
+   AI CHATBOT FLOAT
+========================= */
+
+.ai-chatbot-float {
+  position: fixed;
+  bottom: 110px;     /* sopra WhatsApp */
+  right: 30px;       /* stessa colonna */
+  width: 60px;
+  height: 60px;
+  background: #1e4d47;
+  color: #fff;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 22px;
+  cursor: pointer;
+  box-shadow: 0 10px 25px rgba(0,0,0,0.25);
+  z-index: 9999;
+}
+#ai-chatbot {
+  position: fixed;
+  bottom: 110px;
+  right: 30px;
+}
+
+/* Label accanto all’icona */
+
+.ai-chat-label {
+  position: absolute;
+  right: 75px;
+  top: 50%;
+  transform: translateY(-50%);
+  background: #1e4d47;
+  color: #fff;
+  padding: 10px 16px;
+  border-radius: 25px;
+  font-size: 14px;
+  white-space: nowrap;
+  box-shadow: 0 10px 25px rgba(0,0,0,0.25);
+  opacity: 0;
+  pointer-events: none;
+  transition: 0.4s ease;
+}
+
+.ai-chat-label.show {
+  opacity: 1;
+}
+
+/* Hover */
+
+.ai-chatbot-float:hover .ai-chat-label {
+  opacity: 1;
+}
+
+/* Notifica automatica */
+
+.ai-notification {
+  position: fixed;
+  bottom: 190px;   /* sopra chatbot */
+  right: 30px;
+  background: #1e4d47;
+  color: white;
+  padding: 10px 16px;
+  border-radius: 25px;
+  font-size: 14px;
+  box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+  cursor: pointer;
+  opacity: 0;
+  transform: translateY(15px);
+  transition: 0.4s ease;
+  z-index: 9998;
+}
+
+.ai-notification.show {
+  opacity: 1;
+  transform: translateY(0);
+}

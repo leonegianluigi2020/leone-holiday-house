@@ -715,6 +715,258 @@ function sendPopupWhatsApp() {
   window.open(url, "_blank");
 }
 </script>
+<!-- =========================
+     AI CHATBOT FINAL STABLE VERSION
+========================= -->
+
+<div id="ai-chatbot">
+
+  <div id="chat-box" style="display:none; flex-direction:column;">
+
+    <div class="chat-header">
+      <strong id="chat-title">Leone Assistant</strong>
+      <span onclick="toggleChat()">✖</span>
+    </div>
+
+    <div id="chat-messages"></div>
+
+    <div class="chat-quick">
+      <button onclick="quickReply('posizione')">📍</button>
+      <button onclick="quickReply('mare')">🏖</button>
+      <button onclick="quickReply('aeroporto')">✈️</button>
+      <button onclick="quickReply('persone')">👥</button>
+      <button onclick="quickReply('ristoranti')">🍝</button>
+      <button onclick="quickReply('preventivo')">💰</button>
+    </div>
+
+    <div class="chat-input">
+      <input type="text" id="chat-input">
+      <button onclick="handleUserInput()" id="chat-send-btn"></button>
+    </div>
+
+  </div>
+
+  <div class="ai-chatbot-float" onclick="toggleChat()">
+      💬
+      <div class="ai-chat-label" id="chat-label"></div>
+  </div>
+
+</div>
+
+<div id="ai-notification" class="ai-notification"></div>
+
+<script>
+
+/* =========================
+   CONTENT
+========================= */
+
+const chatbotContent = {
+
+  welcome: {
+    it: "👋 Ciao! Posso aiutarti con informazioni sulla villa.",
+    en: "👋 Hi! I can help you with information about the villa."
+  },
+
+  inputPlaceholder: {
+    it: "Scrivi una domanda...",
+    en: "Type your question..."
+  },
+
+  sendButton: {
+    it: "Invia",
+    en: "Send"
+  },
+
+  chatLabel: {
+    it: "Hai bisogno di aiuto?",
+    en: "Need help?"
+  },
+
+  notification: {
+    it: "👋 Hai bisogno di aiuto?",
+    en: "👋 Need help?"
+  },
+
+  posizione: {
+    it: "📍 La villa si trova a Latiano (BR), nel cuore dell’Alto Salento.",
+    en: "📍 The villa is located in Latiano (BR), in Alto Salento."
+  },
+
+  mare: {
+    it: "🏖 Le spiagge dell’Adriatico distano circa 20–30 minuti in auto.",
+    en: "🏖 The Adriatic beaches are about 20–30 minutes by car."
+  },
+
+  aeroporto: {
+    it: "✈️ Aeroporto di Brindisi: 20 minuti. Aeroporto di Bari Palese: circa 1h 15m.",
+    en: "✈️ Brindisi Airport: 20 minutes. Bari Palese Airport: about 1h 15m."
+  },
+
+  persone: {
+    it: "👥 La villa può ospitare fino a 6 persone.",
+    en: "👥 The villa can host up to 6 guests."
+  },
+
+  ristoranti: {
+    it: "🍝 Latiano, Mesagne e Ceglie Messapica offrono numerosi ristoranti tipici.",
+    en: "🍝 Latiano, Mesagne and Ceglie Messapica offer many traditional restaurants."
+  },
+
+  preventivo: {
+    it: "💰 Puoi selezionare le date nel calendario per ottenere un preventivo immediato.",
+    en: "💰 Select your dates in the calendar to get an instant quote."
+  },
+
+  default: {
+    it: "Per informazioni specifiche puoi scriverci direttamente su WhatsApp 😊",
+    en: "For specific requests you can contact us directly on WhatsApp 😊"
+  }
+};
+
+/* =========================
+   LANGUAGE
+========================= */
+
+function getCurrentLang() {
+  return document.body.classList.contains("lang-en") ? "en" : "it";
+}
+
+/* =========================
+   CHAT CORE
+========================= */
+
+function toggleChat() {
+  const box = document.getElementById("chat-box");
+  box.style.display = box.style.display === "flex" ? "none" : "flex";
+}
+
+function addMessage(text, sender = "bot") {
+  const container = document.getElementById("chat-messages");
+  const div = document.createElement("div");
+  div.className = sender + "-message";
+  div.innerHTML = text;
+  container.appendChild(div);
+  container.scrollTop = container.scrollHeight;
+}
+
+function quickReply(type) {
+  respond(type);
+}
+
+function handleUserInput() {
+  const input = document.getElementById("chat-input");
+  const text = input.value.trim().toLowerCase();
+  if (!text) return;
+
+  addMessage(text, "user");
+  input.value = "";
+
+  if (text.includes("mare") || text.includes("sea")) respond("mare");
+  else if (text.includes("aeroporto") || text.includes("airport")) respond("aeroporto");
+  else if (text.includes("dove") || text.includes("where")) respond("posizione");
+  else if (text.includes("prezzo") || text.includes("price")) respond("preventivo");
+  else if (text.includes("ristor") || text.includes("restaurant")) respond("ristoranti");
+  else if (text.includes("persone") || text.includes("guests")) respond("persone");
+  else respond("default");
+}
+
+function respond(type) {
+  const lang = getCurrentLang();
+  addMessage(chatbotContent[type][lang] || chatbotContent.default[lang]);
+}
+
+/* =========================
+   LANGUAGE SYNC
+========================= */
+
+function updateChatLanguage() {
+
+  const lang = getCurrentLang();
+
+  document.getElementById("chat-label").innerText =
+      chatbotContent.chatLabel[lang];
+
+  document.getElementById("ai-notification").innerText =
+      chatbotContent.notification[lang];
+
+  document.getElementById("chat-input").placeholder =
+      chatbotContent.inputPlaceholder[lang];
+
+  document.getElementById("chat-send-btn").innerText =
+      chatbotContent.sendButton[lang];
+}
+
+/* =========================
+   INIT
+========================= */
+
+document.addEventListener("DOMContentLoaded", function() {
+
+  updateChatLanguage();
+
+  const lang = getCurrentLang();
+  addMessage(chatbotContent.welcome[lang]);
+
+  const notification = document.getElementById("ai-notification");
+  const chatBox = document.getElementById("chat-box");
+
+  if (!localStorage.getItem("aiNotificationShown")) {
+
+    setTimeout(() => {
+      notification.classList.add("show");
+    }, 7000);
+
+    notification.addEventListener("click", () => {
+      chatBox.style.display = "flex";
+      notification.style.display = "none";
+      localStorage.setItem("aiNotificationShown", "true");
+    });
+  }
+
+});
+
+/* =========================
+   AUTO UPDATE ON LANGUAGE CHANGE
+========================= */
+
+const observer = new MutationObserver(() => {
+  updateChatLanguage();
+});
+
+observer.observe(document.body, { attributes: true, attributeFilter: ['class'] });
+
+/* =========================
+   LABEL AUTO SHOW (6 sec)
+========================= */
+
+document.addEventListener("DOMContentLoaded", function() {
+
+  const label = document.getElementById("chat-label");
+
+  if (!label) return;
+
+  if (!localStorage.getItem("aiLabelShown")) {
+
+    setTimeout(() => {
+      label.classList.add("show");
+      localStorage.setItem("aiLabelShown", "true");
+    }, 6000);
+
+  }
+
+});
+
+/* Nasconde label quando si apre la chat */
+function toggleChat() {
+  const box = document.getElementById("chat-box");
+  const label = document.getElementById("chat-label");
+
+  box.style.display = box.style.display === "flex" ? "none" : "flex";
+  label.classList.remove("show");
+}
+</script>
+
 </body>
 
 </html>
