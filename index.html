@@ -661,6 +661,60 @@ ${total}`;
     const url = "https://wa.me/393491431077?text=" + encodeURIComponent(message);
     window.open(url, "_blank");
 }
-</script></body>
+</script>
+<!-- Booking Popup Modal -->
+<div id="booking-modal" class="booking-modal">
+  <div class="booking-content">
+    <span class="booking-close" onclick="closeBooking()">&times;</span>
+    <h2>Verifica Disponibilità</h2>
+
+    <div class="booking-field">
+      <label for="popup-checkin">Check-in</label>
+      <input type="date" id="popup-checkin" required>
+    </div>
+
+    <div class="booking-field">
+      <label for="popup-checkout">Check-out</label>
+      <input type="date" id="popup-checkout" required>
+    </div>
+
+    <div class="booking-field">
+      <label for="popup-guests">Numero ospiti</label>
+      <input type="number" id="popup-guests" min="1" max="10" required>
+    </div>
+
+    <button onclick="sendPopupWhatsApp()" class="booking-btn">
+      Richiedi su WhatsApp
+    </button>
+  </div>
+</div>
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+  setTimeout(() => {
+    document.getElementById("booking-modal").classList.add("show");
+  }, 1500);
+});
+
+function closeBooking() {
+  document.getElementById("booking-modal").classList.remove("show");
+}
+
+function sendPopupWhatsApp() {
+  const checkin = document.getElementById("popup-checkin").value || "Non specificato";
+  const checkout = document.getElementById("popup-checkout").value || "Non specificato";
+  const guests = document.getElementById("popup-guests").value || "Non specificato";
+
+  const message =
+`Salve, vorrei verificare disponibilità per Leone Holiday House:
+
+📅 Check-in: ${checkin}
+📅 Check-out: ${checkout}
+👥 Ospiti: ${guests}`;
+
+  const url = "https://wa.me/393491431077?text=" + encodeURIComponent(message);
+  window.open(url, "_blank");
+}
+</script>
+</body>
 
 </html>
