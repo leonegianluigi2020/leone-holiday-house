@@ -978,26 +978,27 @@ footer {
    DATE OCCUPATE (ORO)
    ========================= */
 
-.fc .fc-bg-event {
-  background-color: #D4AF37;
-  opacity: 0.9;
+.fc .occupied-range {
+  background-color: #D4AF37 !important;
+  opacity: 0.85 !important;
+  z-index: 2 !important;
 }
 
 /* =========================
-   SELEZIONE UTENTE (VERDE)
+   SELEZIONE UTENTE (VERDE CHIARO ELEGANTE)
    ========================= */
 
-.fc-event {
-  background-color: #1e4d47 !important;
-  border-color: #1e4d47 !important;
-  color: #ffffff !important;
-  opacity: 1 !important;
-  z-index: 10 !important;
+.fc .selected-range {
+  background-color: rgba(46, 139, 87, 0.30) !important;
+  border: 1px solid #2E8B57 !important;
+  z-index: 5 !important;
 }
 
-/* Nasconde eventuale testo dentro evento */
-.fc-event-title {
-  display: none;
+/* Mantieni sempre visibili i numeri */
+.fc-daygrid-day-number {
+  position: relative;
+  z-index: 10;
+  color: #000;
 }
 
 /* =========================
@@ -1027,3 +1028,4 @@ footer {
     transform: translateY(0);
   }
 }
+

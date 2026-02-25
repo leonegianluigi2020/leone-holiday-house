@@ -416,9 +416,11 @@
 <script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.11/index.global.min.js" defer></script>
 
 <script>
-let checkIn = null;
-let checkOut = null;
-let selectedEvent = null;
+const bookingState = {
+    checkIn: null,
+    checkOut: null,
+    selectedEvent: null
+};
 
 document.addEventListener('DOMContentLoaded', function () {
 
@@ -426,118 +428,150 @@ document.addEventListener('DOMContentLoaded', function () {
     if (!calendarEl) return;
 
     fetch('https://availability-worker.leonegianluigi2020.workers.dev')
-        .then(response => response.json())
+        .then(res => res.json())
         .then(data => {
 
             const occupiedEvents = data.map(event => ({
                 start: event.start,
                 end: event.end,
                 display: 'background',
-                allDay: true,
-                backgroundColor: '#D4AF37',
-                borderColor: '#D4AF37'
+                classNames: ['occupied-range'],
+                allDay: true
             }));
 
             const calendar = new FullCalendar.Calendar(calendarEl, {
                 initialView: 'dayGridMonth',
                 locale: 'it',
                 selectable: false,
+                events: occupiedEvents,
 
                 dateClick: function(info) {
-
-                    const clicked = info.dateStr;
-
-                    // 🔒 controllo data occupata
-                    const isBlocked = occupiedEvents.some(event =>
-                        clicked >= event.start && clicked < event.end
-                    );
-
-                    if (isBlocked) {
-                        showUnavailableMessage();
-                        return;
-                    }
-
-                    // 1️⃣ Primo click → check-in
-                    if (!checkIn) {
-                        resetSelection();
-                        checkIn = clicked;
-                        return;
-                    }
-
-                    // 2️⃣ Secondo click → check-out
-                    if (!checkOut) {
-
-                        if (clicked <= checkIn) {
-                            checkIn = clicked;
-                            return;
-                        }
-
-                        // controllo intervallo con date occupate
-                        const overlapping = occupiedEvents.some(event =>
-                            event.start < clicked && event.end > checkIn
-                        );
-
-                        if (overlapping) {
-                            showUnavailableMessage();
-                            resetSelection();
-                            return;
-                        }
-
-                        checkOut = clicked;
-
-                        selectedEvent = calendar.addEvent({
-                            start: checkIn,
-                            end: checkOut,
-                            display: 'block',
-                            backgroundColor: '#1e4d47',
-                            borderColor: '#1e4d47',
-                            textColor: '#ffffff',
-                            allDay: true
-                        });
-
-                        showQuotePanel();
-                        return;
-                    }
-
-                    // 3️⃣ Terzo click → reset e riparte
-                    resetSelection();
-                    checkIn = clicked;
-                },
-
-                events: occupiedEvents
+                    handleDateClick(info, calendar, occupiedEvents);
+                }
             });
 
             calendar.render();
-
-            // 🧹 funzione reset pulita
-            function resetSelection() {
-                checkIn = null;
-                checkOut = null;
-
-                if (selectedEvent) {
-                    selectedEvent.remove();
-                    selectedEvent = null;
-                }
-
-                const existingPanel = document.getElementById("quote-panel");
-                if (existingPanel) existingPanel.remove();
-
-                const existingBox = document.getElementById("unavailable-box");
-                if (existingBox) existingBox.remove();
-            }
-
-        })
-        .catch(error => console.error("Errore calendario:", error));
+        });
 });
-</script>
-// ================= QUOTE PANEL =================
+
+function handleDateClick(info, calendar, occupiedEvents) {
+
+    const clickedDate = new Date(info.dateStr);
+
+    if (isDateBlocked(clickedDate, occupiedEvents)) {
+        showUnavailableMessage();
+        return;
+    }
+
+    // PRIMO CLICK
+    if (!bookingState.checkIn) {
+        resetSelection(calendar);
+        bookingState.checkIn = clickedDate;
+        highlightSelection(calendar, clickedDate, clickedDate);
+        return;
+    }
+
+    // SECONDO CLICK
+    if (!bookingState.checkOut) {
+
+        if (clickedDate <= bookingState.checkIn) {
+            bookingState.checkIn = clickedDate;
+            highlightSelection(calendar, clickedDate, clickedDate);
+            return;
+        }
+
+        if (isRangeBlocked(bookingState.checkIn, clickedDate, occupiedEvents)) {
+            showUnavailableMessage();
+            resetSelection(calendar);
+            return;
+        }
+
+        bookingState.checkOut = clickedDate;
+        highlightSelection(calendar, bookingState.checkIn, clickedDate);
+        showQuotePanel();
+        return;
+    }
+
+    // TERZO CLICK → RESET
+    resetSelection(calendar);
+    bookingState.checkIn = clickedDate;
+    highlightSelection(calendar, clickedDate, clickedDate);
+}
+
+function isDateBlocked(date, occupiedEvents) {
+    return occupiedEvents.some(event => {
+        const start = new Date(event.start);
+        const end = new Date(event.end);
+        return date >= start && date < end;
+    });
+}
+
+function isRangeBlocked(startDate, endDate, occupiedEvents) {
+    return occupiedEvents.some(event => {
+        const start = new Date(event.start);
+        const end = new Date(event.end);
+        return start < endDate && end > startDate;
+    });
+}
+
+function highlightSelection(calendar, start, end) {
+
+    if (bookingState.selectedEvent) {
+        bookingState.selectedEvent.remove();
+    }
+
+    const endDate = new Date(end);
+    endDate.setDate(endDate.getDate() + 1);
+
+    bookingState.selectedEvent = calendar.addEvent({
+        start: start,
+        end: endDate,
+        display: 'background',
+        classNames: ['selected-range'],
+        allDay: true
+    });
+}
+
+function resetSelection(calendar) {
+
+    if (bookingState.selectedEvent) {
+        bookingState.selectedEvent.remove();
+        bookingState.selectedEvent = null;
+    }
+
+    bookingState.checkIn = null;
+    bookingState.checkOut = null;
+
+    const panel = document.getElementById("quote-panel");
+    if (panel) panel.remove();
+}
+
+function showUnavailableMessage() {
+
+    const existing = document.getElementById("unavailable-box");
+    if (existing) existing.remove();
+
+    const box = document.createElement("div");
+    box.id = "unavailable-box";
+
+    box.innerHTML = `
+        <strong>Le date non sono disponibili?</strong><br><br>
+        Anche se le date risultano occupate, il nostro team può suggerire altre ville esclusive con piscina nelle vicinanze.
+    `;
+
+    document.querySelector(".calendar-container").appendChild(box);
+}
 
 function showQuotePanel() {
 
     const existing = document.getElementById("quote-panel");
     if (existing) existing.remove();
 
-    const nights = Math.ceil((checkOut - checkIn) / (1000 * 60 * 60 * 24));
+    const nights = Math.ceil(
+        (bookingState.checkOut - bookingState.checkIn) / (1000 * 60 * 60 * 24)
+    );
+
+    if (nights <= 0) return;
 
     const panel = document.createElement("div");
     panel.id = "quote-panel";
@@ -549,8 +583,8 @@ function showQuotePanel() {
 
     panel.innerHTML = `
         <h3>Preventivo</h3>
-        <p>Check-in: ${checkIn.toLocaleDateString()}</p>
-        <p>Check-out: ${checkOut.toLocaleDateString()}</p>
+        <p>Check-in: ${bookingState.checkIn.toLocaleDateString()}</p>
+        <p>Check-out: ${bookingState.checkOut.toLocaleDateString()}</p>
         <p>Notti: ${nights}</p>
 
         <label>Numero ospiti</label>
@@ -580,40 +614,34 @@ function showQuotePanel() {
     });
 }
 
-
-// ================= PRICE CALC =================
-
 function calculatePrice(nights) {
 
     const guests = parseInt(document.getElementById("dynamic-guests").value);
-    const month = checkIn.getMonth() + 1;
+    const month = bookingState.checkIn.getMonth() + 1;
 
-    let basePrice = 0;
+    let base = 0;
+
+    if ([11,12,1,2,3].includes(month)) base = 80;
+    else if ([4,10].includes(month)) base = 100;
+    else if (month === 5) base = 120;
+    else if ([6,9].includes(month)) base = 180;
+    else if (month === 7) base = 210;
+    else if (month === 8) base = 230;
+
     let extra = 0;
-
-    if ([11,12,1,2,3].includes(month)) basePrice = 80;
-    else if ([4,10].includes(month)) basePrice = 100;
-    else if (month === 5) basePrice = 120;
-    else if ([6,9].includes(month)) basePrice = 180;
-    else if (month === 7) basePrice = 210;
-    else if (month === 8) basePrice = 230;
-
     if (guests > 4) {
-        const extraRate = (month === 7 || month === 8) ? 30 : 25;
-        extra = (guests - 4) * extraRate;
+        const rate = (month === 7 || month === 8) ? 30 : 25;
+        extra = (guests - 4) * rate;
     }
 
-    const totalPerNight = basePrice + extra;
-    const totalStay = totalPerNight * nights;
+    const totalNight = base + extra;
+    const totalStay = totalNight * nights;
 
     document.getElementById("price-result").innerHTML = `
-        Prezzo per notte: €${totalPerNight}<br>
+        Prezzo per notte: €${totalNight}<br>
         Totale soggiorno: €${totalStay}
     `;
 }
-
-
-// ================= WHATSAPP =================
 
 function sendDynamicWhatsApp(nights) {
 
@@ -623,8 +651,8 @@ function sendDynamicWhatsApp(nights) {
     const message =
 `Salve, vorrei prenotare Leone Holiday House:
 
-Check-in: ${checkIn.toLocaleDateString()}
-Check-out: ${checkOut.toLocaleDateString()}
+Check-in: ${bookingState.checkIn.toLocaleDateString()}
+Check-out: ${bookingState.checkOut.toLocaleDateString()}
 Notti: ${nights}
 Ospiti: ${guests}
 
@@ -632,112 +660,6 @@ ${total}`;
 
     const url = "https://wa.me/393491431077?text=" + encodeURIComponent(message);
     window.open(url, "_blank");
-}
-
-
-// ================= UNAVAILABLE MESSAGE =================
-
-function showUnavailableMessage() {
-
-    let existing = document.getElementById("unavailable-box");
-    if (existing) existing.remove();
-
-    const box = document.createElement("div");
-    box.id = "unavailable-box";
-    box.style.marginTop = "25px";
-    box.style.padding = "25px";
-    box.style.background = "#f8f5f0";
-    box.style.borderLeft = "5px solid #D4AF37";
-    box.style.fontSize = "18px";
-    box.style.lineHeight = "1.6";
-    box.style.fontWeight = "500";
-    box.style.color = "#333";
-    box.style.borderRadius = "8px";
-
-    box.innerHTML = `
-        <strong style="font-size:20px;">
-        Le date non sono disponibili?
-        </strong><br><br>
-        Il nostro team può suggerire altre ville esclusive con piscina nella zona.
-    `;
-
-    document.querySelector(".calendar-container").appendChild(box);
-}
-</script>
-<!-- WhatsApp Popup -->
-<div id="whatsapp-popup" class="whatsapp-popup">
-  <div class="popup-content">
-    <span class="popup-close" onclick="closePopup()">&times;</span>
-    <h3>Hai bisogno di informazioni?</h3>
-    <p>Scrivici direttamente su WhatsApp per disponibilità e preventivi.</p>
-    <a href="https://wa.me/393491431077?text=Salve,%20vorrei%20informazioni%20su%20Leone%20Holiday%20House"
-       target="_blank"
-       class="popup-btn">
-       Scrivi su WhatsApp
-    </a>
-  </div>
-</div>
-
-<script>
-setTimeout(() => {
-  document.getElementById("whatsapp-popup").classList.add("show");
-}, 4000);
-
-function closePopup() {
-  document.getElementById("whatsapp-popup").classList.remove("show");
-}
-</script>
-<!-- Booking Popup Modal -->
-<div id="booking-modal" class="booking-modal">
-  <div class="booking-content">
-    <span class="booking-close" onclick="closeBooking()">&times;</span>
-    <h2>Verifica Disponibilità</h2>
-
-    <div class="booking-field">
-      <label for="checkin">Check-in</label>
-      <input type="date" id="checkin" required>
-    </div>
-
-    <div class="booking-field">
-      <label for="checkout">Check-out</label>
-      <input type="date" id="checkout" required>
-    </div>
-
-    <div class="booking-field">
-      <label for="guests">Numero ospiti</label>
-      <input type="number" id="guests" min="1" max="10" required>
-    </div>
-
-    <button onclick="sendWhatsApp()" class="booking-btn">
-      Richiedi su WhatsApp
-    </button>
-  </div>
-</div>
-<script>
-setTimeout(() => {
-  document.getElementById("booking-modal").classList.add("show");
-}, 1500);
-
-function closeBooking() {
-  document.getElementById("booking-modal").classList.remove("show");
-}
-
-function sendWhatsApp() {
-  const checkin = document.getElementById("checkin").value || "Non specificato";
-  const checkout = document.getElementById("checkout").value || "Non specificato";
-  const guests = document.getElementById("guests").value || "Non specificato";
-
-  const message =
-`Salve, vorrei verificare disponibilità per Leone Holiday House:
-
-📅 Check-in: ${checkin}
-📅 Check-out: ${checkout}
-👥 Ospiti: ${guests}`;
-
-  const encodedMessage = encodeURIComponent(message);
-  const url = `https://wa.me/393491431077?text=${encodedMessage}`;
-
-  window.open(url, "_blank");
 }
 </script></body>
 
